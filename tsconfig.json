@@ -1,0 +1,13 @@
+{
+  "compilerOptions":{
+    "target":"es5",
+    "module":"amd",
+    "sourceMap": true,
+    "declaration": true,
+    "outFile": "gallery.js",
+    "watch": true
+  },
+  "include":[
+      "src/typings/*.ts"
+  ]
+}

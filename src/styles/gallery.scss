@@ -1,0 +1,28 @@
+.gallery-box{
+    width:100%;
+    >div:first-child{ // big
+        width:100%;
+        >img{
+            width:100%;
+        }
+    }
+    >div:nth-child(2){ // mini_cover
+        position: relative;
+        overflow: hidden;
+        width:100%;
+        >div{ // mini
+            white-space: nowrap;
+            text-align: center;
+            >img{
+                padding: 0.5rem;
+                margin: 0.5rem;
+                width: 150px;
+                cursor:pointer;
+                // display: inline;
+                &.active{
+                    background-color: #909090;
+                }
+            }
+        }
+    }
+}
