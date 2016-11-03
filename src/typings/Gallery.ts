@@ -3,7 +3,7 @@ enum AdvertiseUntil {
     first_hover,
     infinite
 }
-interface Options {
+interface GalleryOptions {
     id?: string,
     class?: string[],
     hover_scroll: boolean,
@@ -17,7 +17,7 @@ interface Options {
 }
 class Gallery {
 
-    public options: Options = {
+    public options: GalleryOptions = {
         id: "",
         class: ["gallery"],
         hover_scroll: true,
@@ -31,19 +31,18 @@ class Gallery {
     };
 
     public box: HTMLDivElement;
-    public box_fs_keeper: HTMLDivElement;
-    public box_fs: HTMLDivElement;
     public big: HTMLDivElement;
     public bigPic: HTMLImageElement;
     public bigPic2: HTMLImageElement;
     public mini_cover: HTMLDivElement;
     public mini: HTMLDivElement;
+    public gfs: GalleryFS;
 
     public images: any[];
 
     public is_full_screen: boolean = false;
 
-    constructor(images: any[], options: Options) {
+    constructor(images: any[], options: GalleryOptions) {
         // console.log(images);
         try {
             (<any>Object).assign(this.options, options);
@@ -164,7 +163,7 @@ class Gallery {
                 interval = undefined;
                 // evt.stopPropagation();
             }
-            this.box.addEventListener('click',stopInterval);
+            this.box.addEventListener('click', stopInterval);
         }
     }
 
@@ -211,7 +210,7 @@ class Gallery {
     }
     fullScreen(on_off: boolean) {
         if (on_off && !this.is_full_screen) {
-
+            this.gfs = new GalleryFS(this.images).on(this.findActive().index);
         } else {
 
         }

@@ -219,6 +219,7 @@ var Gallery = (function () {
     };
     Gallery.prototype.fullScreen = function (on_off) {
         if (on_off && !this.is_full_screen) {
+            this.gfs = new GalleryFS(this.images).on(this.findActive().index);
         }
         else {
         }
@@ -228,4 +229,67 @@ var Gallery = (function () {
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = Gallery;
 }
+var GalleryFS = (function () {
+    function GalleryFS(images, options) {
+        var _this = this;
+        this.options = {};
+        this.images = [];
+        try {
+            Object.assign(this.options, options);
+        }
+        catch (ex) { }
+        ;
+        images.forEach(function (elem) {
+            var img = document.createElement('img');
+            img.src = elem.src;
+            _this.images.push(img);
+        });
+    }
+    GalleryFS.prototype.prep_fullScreen = function () {
+        if (!this.box_fs_dimmer) {
+            this.box_fs_dimmer = document.createElement('div');
+            this.box_fs_dimmer.classList.add('gallery-box-fullscreen-dimmer');
+            document.body.appendChild(this.box_fs_dimmer);
+        }
+        if (!this.box_fs) {
+            this.box_fs = document.createElement('div');
+            this.box_fs.classList.add('gallery-box-fullscreen');
+            this.box_fs_inner = document.createElement('div');
+            document.body.appendChild(this.box_fs);
+            this.box_fs.appendChild(this.box_fs_inner);
+        }
+        if (!this.pic1) {
+            this.pic1 = document.createElement('img');
+            this.box_fs_inner.appendChild(this.pic1);
+        }
+        if (!this.pic2) {
+            this.pic2 = document.createElement('img');
+            this.box_fs_inner.appendChild(this.pic2);
+        }
+        // this.images.forEach((img)=>{
+        //     this.box_fs.appendChild(img);
+        // })
+    };
+    GalleryFS.prototype.on = function (nth) {
+        this.prep_fullScreen();
+        if (this.pic1.classList.contains('transparent')) {
+            this.pic1.src = this.images[nth].src;
+            this.pic1.classList.remove('transparent');
+            this.pic2.classList.add('transparent');
+        }
+        else if (this.pic2.classList.contains('transparent')) {
+            this.pic2.src = this.images[nth].src;
+            this.pic1.classList.add('transparent');
+            this.pic2.classList.remove('transparent');
+        }
+        else {
+            this.pic1.src = this.images[nth].src;
+            this.pic2.src = this.images[nth].src;
+            this.pic1.classList.remove('transparent');
+            this.pic2.classList.add('transparent');
+        }
+        return this;
+    };
+    return GalleryFS;
+}());
 //# sourceMappingURL=gallery.js.map

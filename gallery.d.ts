@@ -3,7 +3,7 @@ declare enum AdvertiseUntil {
     first_hover = 1,
     infinite = 2,
 }
-interface Options {
+interface GalleryOptions {
     id?: string;
     class?: string[];
     hover_scroll: boolean;
@@ -16,18 +16,17 @@ interface Options {
     advertise_timeout: number;
 }
 declare class Gallery {
-    options: Options;
+    options: GalleryOptions;
     box: HTMLDivElement;
-    box_fs_keeper: HTMLDivElement;
-    box_fs: HTMLDivElement;
     big: HTMLDivElement;
     bigPic: HTMLImageElement;
     bigPic2: HTMLImageElement;
     mini_cover: HTMLDivElement;
     mini: HTMLDivElement;
+    gfs: GalleryFS;
     images: any[];
     is_full_screen: boolean;
-    constructor(images: any[], options: Options);
+    constructor(images: any[], options: GalleryOptions);
     prep_box(): void;
     prep_big(): void;
     prep_mini(): void;
@@ -44,3 +43,28 @@ declare class Gallery {
     big_onresize: () => void;
 }
 declare var module: any;
+interface GalleryFSOptions {
+    id?: string;
+    class?: string[];
+    hover_scroll?: boolean;
+    click_full_screen?: boolean;
+    click_change?: boolean;
+    hover_zoom?: boolean;
+    hover_zoom_level?: number;
+    click_borders?: number[];
+    advertise_until?: AdvertiseUntil;
+    advertise_timeout?: number;
+}
+declare class GalleryFS {
+    options: GalleryFSOptions;
+    box_fs_dimmer: HTMLDivElement;
+    box_fs: HTMLDivElement;
+    box_fs_inner: HTMLDivElement;
+    pic1: HTMLImageElement;
+    pic2: HTMLImageElement;
+    currentIndex: number;
+    images: HTMLImageElement[];
+    constructor(images: any[], options?: GalleryFSOptions);
+    prep_fullScreen(): void;
+    on(nth: number): this;
+}

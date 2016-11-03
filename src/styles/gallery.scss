@@ -43,9 +43,38 @@
 .gallery-box{
     width:100%;
 }
-.gallery-box-fullscreen-keeper{
-    position: fixed;
+//GFS
+.gallery-box-fullscreen-dimmer{
+    position: absolute;
     top: 0;
     left: 0;
     z-index: 10000;
+    height:100%;
+    width:100%;
+    background-color: #000000;
+    opacity:0.3; 
+}
+.gallery-box-fullscreen{
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    position: absolute;
+    top:0;
+    left:0;
+    z-index: 10001;
+    >div{
+        margin: auto;
+        img{
+            width:100%;
+            -webkit-transition: opacity 1s ease-in-out;
+            -moz-transition: opacity 1s ease-in-out;
+            -o-transition: opacity 1s ease-in-out;
+            transition: opacity 1s ease-in-out;
+            opacity: 1;
+            &.transparent{
+                opacity: 0;
+            }
+        }
+    }
 }
