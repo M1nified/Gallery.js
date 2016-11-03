@@ -4,10 +4,18 @@
 <head>
 	<script src="../gallery.js"></script>
     <link rel="stylesheet" href="../gallery.css" />
+	<style>
+		.gallery-container{
+			max-width: 500px;
+			margin-left: 100px;
+			padding: 2em;
+			background-color: #e1e1e1;
+		}
+	</style>
 </head>
 
 <body>
-	<div class="gallery">
+	<div class="gallery-container">
 		<img src="http://www.statsoft.pl/Portals/0/Images/ogolna_filozofia_statistica/przestrzenprobocza_statistica.bmp">
 		<img src="http://www.statsoft.pl/Portals/0/Images/ogolna_filozofia_statistica/pulipit_wiualizacji_1.png">
 		<img src="http://www.statsoft.pl/Portals/0/Images/ogolna_filozofia_statistica/pulipit_wiualizacji_2.png">
@@ -20,7 +28,7 @@
 		<img src="http://www.statsoft.pl/Portals/0/Images/ogolna_filozofia_statistica/wizualizacje.png">
 	</div>
     <script>    
-        var gal = new Gallery(document.querySelectorAll(".gallery>img"));
+        var gal = new Gallery(document.querySelectorAll(".gallery-container>img"));
     </script>
 </body>
 

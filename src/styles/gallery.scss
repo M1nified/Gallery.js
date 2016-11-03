@@ -1,7 +1,8 @@
-.gallery-box{
-    width:100%;
+.gallery-box, .gallery-box-fullscreen{
     >div:first-child{ // big
-        width:100%;
+        // width:100%;
+        cursor:pointer;
+        overflow: hidden;
         >img{
             width:100%;
         }
@@ -9,7 +10,7 @@
     >div:nth-child(2){ // mini_cover
         position: relative;
         overflow: hidden;
-        width:100%;
+        // width:100%;
         >div{ // mini
             white-space: nowrap;
             text-align: center;
@@ -25,4 +26,13 @@
             }
         }
     }
+}
+.gallery-box{
+    width:100%;
+}
+.gallery-box-fullscreen-keeper{
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 10000;
 }

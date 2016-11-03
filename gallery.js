@@ -1,10 +1,35 @@
+if (!Array.prototype.filter) {
+    Array.prototype.filter = function (fun /*, thisp*/) {
+        var len = this.length;
+        if (typeof fun != "function")
+            throw new TypeError();
+        var res = new Array();
+        var thisp = arguments[1];
+        for (var i = 0; i < len; i++) {
+            if (i in this) {
+                var val = this[i]; // in case fun mutates this
+                if (fun.call(thisp, val, i, this))
+                    res.push(val);
+            }
+        }
+        return res;
+    };
+}
+NodeList.prototype.forEach = Array.prototype.forEach;
+NodeList.prototype.filter = Array.prototype.filter;
 var Gallery = (function () {
     function Gallery(images, options) {
         this.options = {
             id: "",
             class: ["gallery"],
-            hover_scroll: true
+            hover_scroll: true,
+            click_full_screen: true,
+            click_change: true,
+            hover_zoom: true,
+            hover_zoom_level: 2,
+            click_borders: [30, 70]
         };
+        this.is_full_screen = false;
         console.log(images);
         try {
             Object.assign(this.options, options);
@@ -15,7 +40,7 @@ var Gallery = (function () {
         this.prep_box();
         this.prep_big();
         this.prep_mini();
-        this.toBig(0);
+        this.showInBig(0);
     }
     Gallery.prototype.prep_box = function () {
         var _this = this;
@@ -27,6 +52,7 @@ var Gallery = (function () {
         this.images[0].parentElement.insertBefore(this.box, this.images[0]);
     };
     Gallery.prototype.prep_big = function () {
+        var _this = this;
         if (!this.box)
             throw "Container is not present (this.box)";
         this.big = document.createElement('div');
@@ -34,6 +60,49 @@ var Gallery = (function () {
         this.bigPic = document.createElement('img');
         this.big.appendChild(this.bigPic);
         this.box.appendChild(this.big);
+        if (this.options.click_change || this.options.click_full_screen) {
+            var onclick_1 = function (evt) {
+                var width = _this.big.clientWidth;
+                var offsetLeft = _this.big.getBoundingClientRect().left;
+                var mouseX = evt.clientX || evt.pageX || evt.touches[0].clientX || evt.touches[0].pageX;
+                var inMouseX = evt.offsetX || mouseX - offsetLeft;
+                var pos = Math.floor(inMouseX / width * 100);
+                var currImg = _this.findActive();
+                if (_this.options.click_change && pos < _this.options.click_borders[0]) {
+                    currImg.index > 0 && _this.showInBig(currImg.index - 1) && _this.showInMini(currImg.index - 1);
+                }
+                else if (_this.options.click_change && pos > _this.options.click_borders[1]) {
+                    currImg.index < _this.images.length - 1 && _this.showInBig(currImg.index + 1) && _this.showInMini(currImg.index - 1);
+                }
+                else if (_this.options.click_full_screen) {
+                    _this.fullScreen(!_this.is_full_screen);
+                }
+            };
+            this.big.addEventListener('click', onclick_1);
+        }
+        if (this.options.hover_zoom) {
+            var onmousemove_1 = function (evt) {
+                console.log(evt);
+                var inMouseX = evt.offsetX;
+                var inMouseY = evt.offsetX;
+                var x = inMouseX / _this.big.clientWidth;
+                var y = inMouseY / _this.big.clientHeight;
+                _this.big.style.width = _this.big.clientWidth + 'px';
+                _this.big.style.height = _this.big.clientHeight + 'px';
+                _this.bigPic.style.width = _this.big.clientWidth * _this.options.hover_zoom_level + 'px';
+                var top = (inMouseY * (_this.big.clientHeight - _this.bigPic.clientHeight) / _this.bigPic.clientHeight);
+                var left = (inMouseX * (_this.big.clientWidth - _this.bigPic.clientWidth) / _this.bigPic.clientWidth);
+                _this.bigPic.style.marginTop = top + 'px';
+                _this.bigPic.style.marginLeft = left + 'px';
+            };
+            var onmouseleave_1 = function (evt) {
+                _this.bigPic.style.marginTop = '0';
+                _this.bigPic.style.marginLeft = '0';
+                _this.bigPic.style.width = '100%';
+            };
+            this.big.addEventListener('mousemove', onmousemove_1);
+            this.big.addEventListener('mouseleave', onmouseleave_1);
+        }
     };
     Gallery.prototype.prep_mini = function () {
         var _this = this;
@@ -48,7 +117,7 @@ var Gallery = (function () {
         this.images.forEach(function (img, index) {
             _this.mini.appendChild(img);
             img.addEventListener('click', function (evt) {
-                _this.toBig(index);
+                _this.showInBig(index);
             });
         });
         this.prep_hover_scroll();
@@ -57,7 +126,7 @@ var Gallery = (function () {
         var _this = this;
         if (!this.options.hover_scroll)
             return;
-        var move = function (evt) {
+        var onmove = function (evt) {
             var offset_mini_cover = _this.mini_cover.getBoundingClientRect().left;
             var offset_mini = _this.mini.getBoundingClientRect().left;
             var mouseX = evt.clientX || evt.pageX || evt.touches[0].clientX || evt.touches[0].pageX;
@@ -67,13 +136,29 @@ var Gallery = (function () {
             var left = (boxMouseX * (innerBoxWidth + 50 - _this.mini_cover.clientWidth) / _this.mini_cover.clientWidth);
             _this.mini_cover.scrollLeft = left;
         };
-        this.mini_cover.addEventListener('mousemove', move);
-        this.mini_cover.addEventListener('touchmove', move);
+        this.mini_cover.addEventListener('mousemove', onmove);
+        this.mini_cover.addEventListener('touchmove', onmove);
     };
-    Gallery.prototype.toBig = function (nth) {
+    Gallery.prototype.showInBig = function (nth) {
         this.bigPic.src = this.images[nth].src;
         this.images.forEach(function (img) { img.classList.remove('active'); });
         this.images[nth].classList.add('active');
+    };
+    Gallery.prototype.showInMini = function (nth) {
+    };
+    Gallery.prototype.findActive = function () {
+        var index;
+        var image = this.images.filter(function (img, i) { return img.classList.contains('active') && (index = i); });
+        return {
+            index: index,
+            image: Array.isArray(image) && image.length > 0 ? image[0] : undefined
+        };
+    };
+    Gallery.prototype.fullScreen = function (on_off) {
+        if (on_off && !this.is_full_screen) {
+        }
+        else {
+        }
     };
     return Gallery;
 }());
