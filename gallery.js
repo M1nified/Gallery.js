@@ -40,10 +40,10 @@ var Gallery = (function () {
         };
         this.is_full_screen = false;
         this.big_onresize = function () {
-            console.log(_this.bigPic.offsetHeight || _this.bigPic2.offsetHeight);
+            // console.log(this.bigPic.offsetHeight || this.bigPic2.offsetHeight);
             _this.big.style.height = (_this.bigPic.offsetHeight || _this.bigPic2.offsetHeight) + 'px';
         };
-        console.log(images);
+        // console.log(images);
         try {
             Object.assign(this.options, options);
         }
@@ -102,7 +102,7 @@ var Gallery = (function () {
         }
         if (this.options.hover_zoom) {
             var onmousemove_1 = function (evt) {
-                console.log(evt);
+                // console.log(evt);
                 var inMouseX = evt.offsetX;
                 var inMouseY = evt.offsetX;
                 var x = inMouseX / _this.big.clientWidth;

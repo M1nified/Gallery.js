@@ -44,7 +44,7 @@ class Gallery {
     public is_full_screen: boolean = false;
 
     constructor(images: any[], options: Options) {
-        console.log(images);
+        // console.log(images);
         try {
             (<any>Object).assign(this.options, options);
         } catch (ex) { };
@@ -99,7 +99,7 @@ class Gallery {
         }
         if (this.options.hover_zoom) {
             let onmousemove = (evt) => {
-                console.log(evt);
+                // console.log(evt);
                 let inMouseX = evt.offsetX;
                 let inMouseY = evt.offsetX;
                 let x = inMouseX / this.big.clientWidth;
@@ -217,7 +217,7 @@ class Gallery {
         }
     }
     big_onresize = () => {
-        console.log(this.bigPic.offsetHeight || this.bigPic2.offsetHeight);
+        // console.log(this.bigPic.offsetHeight || this.bigPic2.offsetHeight);
         this.big.style.height = (this.bigPic.offsetHeight || this.bigPic2.offsetHeight) + 'px';
     };
 }
