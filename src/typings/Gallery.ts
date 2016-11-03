@@ -1,3 +1,8 @@
+enum AdvertiseUntil {
+    none = 0,
+    first_hover,
+    infinite
+}
 interface Options {
     id?: string,
     class?: string[],
@@ -5,8 +10,10 @@ interface Options {
     click_full_screen: boolean,
     click_change: boolean,
     hover_zoom: boolean,
-    hover_zoom_level:number,
-    click_borders: number[]
+    hover_zoom_level: number,
+    click_borders: number[],
+    advertise_until: AdvertiseUntil,
+    advertise_timeout: number
 }
 class Gallery {
 
@@ -16,9 +23,11 @@ class Gallery {
         hover_scroll: true,
         click_full_screen: true,
         click_change: true,
-        hover_zoom: true,
-        hover_zoom_level:2,
-        click_borders: [30, 70]
+        hover_zoom: false,
+        hover_zoom_level: 2,
+        click_borders: [30, 70],
+        advertise_until: AdvertiseUntil.first_hover,
+        advertise_timeout: 2000
     };
 
     public box: HTMLDivElement;
@@ -26,6 +35,7 @@ class Gallery {
     public box_fs: HTMLDivElement;
     public big: HTMLDivElement;
     public bigPic: HTMLImageElement;
+    public bigPic2: HTMLImageElement;
     public mini_cover: HTMLDivElement;
     public mini: HTMLDivElement;
 
@@ -42,7 +52,9 @@ class Gallery {
         this.prep_box();
         this.prep_big();
         this.prep_mini();
+        this.prep_advertise_until();
         this.showInBig(0);
+        this.big_onresize();
     }
 
     prep_box() {
@@ -58,8 +70,14 @@ class Gallery {
         this.big = document.createElement('div');
         this.big.classList.add('gallery-big');
         this.bigPic = document.createElement('img');
+        this.bigPic2 = document.createElement('img');
         this.big.appendChild(this.bigPic);
+        this.big.appendChild(this.bigPic2);
         this.box.appendChild(this.big);
+
+        this.big_onresize();
+        window.addEventListener('resize', this.big_onresize);
+        this.bigPic.addEventListener('load', this.big_onresize);
 
         if (this.options.click_change || this.options.click_full_screen) {
             let onclick = (evt) => {
@@ -79,7 +97,7 @@ class Gallery {
             }
             this.big.addEventListener('click', onclick);
         }
-        if(this.options.hover_zoom){
+        if (this.options.hover_zoom) {
             let onmousemove = (evt) => {
                 console.log(evt);
                 let inMouseX = evt.offsetX;
@@ -99,8 +117,8 @@ class Gallery {
                 this.bigPic.style.marginLeft = '0';
                 this.bigPic.style.width = '100%';
             }
-            this.big.addEventListener('mousemove',onmousemove);
-            this.big.addEventListener('mouseleave',onmouseleave);
+            this.big.addEventListener('mousemove', onmousemove);
+            this.big.addEventListener('mouseleave', onmouseleave);
         }
     }
     prep_mini() {
@@ -134,11 +152,40 @@ class Gallery {
         this.mini_cover.addEventListener('mousemove', onmove);
         this.mini_cover.addEventListener('touchmove', onmove);
     }
+    prep_advertise_until() {
+        if (!this.options.advertise_until) return;
+
+        if (this.options.advertise_until === AdvertiseUntil.first_hover) {
+            let interval = window.setInterval(() => {
+                this.showInBig(this.nextIndexLoop());
+            }, this.options.advertise_timeout)
+            let stopInterval = (evt) => {
+                window.clearInterval(interval);
+                interval = undefined;
+                // evt.stopPropagation();
+            }
+            this.box.addEventListener('click',stopInterval);
+        }
+    }
 
     showInBig(nth: number) {
-        this.bigPic.src = this.images[nth].src;
+        if (this.bigPic.classList.contains('transparent')) {
+            this.bigPic.src = this.images[nth].src;
+            this.bigPic.classList.remove('transparent');
+            this.bigPic2.classList.add('transparent');
+        } else if (this.bigPic2.classList.contains('transparent')) {
+            this.bigPic2.src = this.images[nth].src;
+            this.bigPic.classList.add('transparent');
+            this.bigPic2.classList.remove('transparent');
+        } else {
+            this.bigPic.src = this.images[nth].src;
+            this.bigPic2.src = this.images[nth].src;
+            this.bigPic.classList.remove('transparent');
+            this.bigPic2.classList.add('transparent');
+        }
         this.images.forEach(img => { img.classList.remove('active'); })
         this.images[nth].classList.add('active');
+        this.big_onresize();
     }
     showInMini(nth: number) {
 
@@ -151,6 +198,17 @@ class Gallery {
             image: Array.isArray(image) && image.length > 0 ? image[0] : undefined
         }
     }
+    nextIndexLoop(clockwise?: boolean): number {
+        let curr = this.findActive();
+        let ni = (clockwise === undefined || clockwise === true) ? curr.index + 1 : curr.index - 1;
+        if (ni >= this.images.length) {
+            ni = 0;
+        }
+        if (ni < 0) {
+            ni = this.images.length - 1;
+        }
+        return ni;
+    }
     fullScreen(on_off: boolean) {
         if (on_off && !this.is_full_screen) {
 
@@ -158,6 +216,10 @@ class Gallery {
 
         }
     }
+    big_onresize = () => {
+        console.log(this.bigPic.offsetHeight || this.bigPic2.offsetHeight);
+        this.big.style.height = (this.bigPic.offsetHeight || this.bigPic2.offsetHeight) + 'px';
+    };
 }
 
 declare var module;
