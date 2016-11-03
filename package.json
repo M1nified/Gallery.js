@@ -1,6 +1,6 @@
 {
   "name": "gallery.js",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Image gallery",
   "main": "gallery.js",
   "directories": {
@@ -21,6 +21,5 @@
   "bugs": {
     "url": "https://github.com/M1nified/Gallery.js/issues"
   },
-  "homepage": "https://github.com/M1nified/Gallery.js#readme",
-  "readme": "README.md"
+  "homepage": "https://github.com/M1nified/Gallery.js#readme"
 }
